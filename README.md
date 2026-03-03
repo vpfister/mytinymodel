@@ -15,24 +15,40 @@ uv sync
 
 ## Usage
 
+The project now uses a unified CLI with subcommands for training and evaluation.
+
 ### Training
 
 To train the model:
 
 ```bash
-# Run the training script
-uv run python -m mytinymodel.trainer
+# Train with default parameters
+uv run tiny train
+
+# Train with custom parameters
+uv run tiny train --dataset imdb --batch-size 64 --epochs 5 --learning-rate 0.001 --max-seq-length 256
 ```
 
-Training parameters can be configured in the `trainer.py` file or passed as arguments.
+Show training help:
+```bash
+uv run tiny train --help
+```
 
-### Inference
+### Evaluation
 
-To perform inference with a trained model:
+To evaluate a trained model:
 
 ```bash
-# Run the evaluator
-uv run python -m mytinymodel.evaluator
+# Evaluate with default parameters
+uv run tiny eval
+
+# Evaluate with custom parameters
+uv run tiny eval --dataset imdb --batch-size 64 --max-seq-length 256
+```
+
+Show evaluation help:
+```bash
+uv run tiny eval --help
 ```
 
 ### Running Tests
@@ -47,6 +63,7 @@ uv run pytest
 - `src/mytinymodel/model.py`: Core GPT-2 model implementation
 - `src/mytinymodel/trainer.py`: Training logic and configuration
 - `src/mytinymodel/evaluator.py`: Evaluation and inference functionality
+- `src/mytinymodel/cli.py`: CLI entrypoint with train/eval subcommands
 - `src/mytinymodel/*_test.py`: Unit tests for each component
 
 ## Configuration

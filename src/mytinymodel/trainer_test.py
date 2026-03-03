@@ -1,9 +1,8 @@
 """Tests for the trainer module."""
 
-import torch
 from unittest.mock import MagicMock, patch
+
 from .trainer import train
-from .model import TinyGPT2
 
 
 def test_train_initialization():

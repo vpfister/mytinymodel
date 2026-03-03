@@ -1,7 +1,7 @@
 """Tests for the evaluator module."""
 
-import torch
 from unittest.mock import MagicMock, patch
+
 from .evaluator import evaluate
 from .model import TinyGPT2
 

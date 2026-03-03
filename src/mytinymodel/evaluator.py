@@ -30,6 +30,7 @@ def evaluate(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     model.eval()
+    model.to(device)
 
     # Load dataset and tokenizer
     logger.info("Loading evaluation dataset")
@@ -88,8 +89,17 @@ def evaluate(
 if __name__ == "__main__":
     # Example usage when run as a script
     from .model import TinyGPT2
+    import os
     
-    # Create a dummy model for demonstration
-    dummy_model = TinyGPT2(vocab_size=50257)
-    print("Running evaluation with dummy model...")
+    # Try to load trained model weights if they exist
+    model_weights_path = "trained_model_weights.pth"
+    if os.path.exists(model_weights_path):
+        print(f"Loading trained model weights from: {model_weights_path}")
+        dummy_model = TinyGPT2(vocab_size=50257)
+        dummy_model.load_state_dict(torch.load(model_weights_path))
+    else:
+        print("No trained model weights found, using dummy model")
+        dummy_model = TinyGPT2(vocab_size=50257)
+    
+    print("Running evaluation...")
     evaluate(dummy_model)

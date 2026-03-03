@@ -95,6 +95,12 @@ def train(
         print(f"Epoch {epoch + 1} average loss: {epoch_loss}")
 
     logger.info("Training completed successfully")
+    
+    # Save model weights
+    model_weights_path = "trained_model_weights.pth"
+    torch.save(model.state_dict(), model_weights_path)
+    logger.info(f"Model weights saved to: {model_weights_path}")
+    
     return model
 
 

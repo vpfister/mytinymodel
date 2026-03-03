@@ -1,0 +1,9 @@
+{
+  "style": {
+    "language": "python",
+    "formatter": "ruff",
+    "test_framework": "pytest",
+    "test_naming": "<module>_test.py",
+    "test_colocation": true
+  }
+}

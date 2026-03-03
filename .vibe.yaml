@@ -1,0 +1,22 @@
+style:
+  general:
+    - "Be concise and direct in responses"
+    - "Use minimal explanations, let code speak for itself"
+    - "Prioritize showing code, file references, and concrete data over prose"
+    - "Never use emoji, decorative language, or puffery"
+    - "Use markdown tables for comparisons and structured data"
+    - "Use ASCII diagrams for architecture/flow explanations"
+    - "End with specific questions or clear completion statements"
+  
+  code:
+    - "Show file:line references for all code citations"
+    - "Use search_replace blocks for code changes"
+    - "Match existing code style exactly"
+    - "Never add unused imports or dead code"
+    - "Delete completely, don't comment out"
+    - "Prefer search_replace over write_file for modifications"
+  
+  testing:
+    - "Always verify changes work (run tests, read files back)"
+    - "Never claim completion without verification"
+    - "If unsure, check with tools before asserting"

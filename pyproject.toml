@@ -1,0 +1,39 @@
+[project]
+name = "mytinymodel"
+version = "0.1.0"
+description = "A tiny GPT2-like model for demonstration purposes"
+authors = [{name = "Vincent Pfister", email = "vincent.pfister@example.com"}]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+dependencies = [
+    "torch>=2.0.0",
+    "datasets>=2.0.0",
+    "transformers>=4.0.0",
+]
+
+[project.scripts]
+mytinymodel = "mytinymodel:main"
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.uv.extra-build-dependencies]
+mytinymodel = ["uv"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.0.280",
+    "pytest>=7.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N", "D", "UP", "S", "B", "A", "C4", "T20", "PYI", "PT", "Q", "RUF"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["src"]

@@ -1,6 +1,7 @@
 """Tests for the TinyGPT2 model."""
 
 import torch
+
 from .model import TinyGPT2
 
 

@@ -1,18 +1,18 @@
 """Training logic for the tiny GPT-2 model."""
 
 import logging
+
 import torch
-from torch.utils.data import DataLoader
 from datasets import load_dataset
-from transformers import GPT2Tokenizer
+from torch.utils.data import DataLoader
 from tqdm import tqdm
+from transformers import GPT2Tokenizer
 
 from .model import TinyGPT2
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,11 @@ def train(
 ) -> TinyGPT2:
     """Train the tiny GPT-2 model on a Hugging Face dataset."""
     logger.info("Starting training process")
-    logger.info(f"Configuration: dataset={dataset_name}, batch_size={batch_size}, epochs={num_epochs}, lr={learning_rate}")
-    
+    logger.info(
+        f"Configuration: dataset={dataset_name}, batch_size={batch_size}, "
+        f"epochs={num_epochs}, lr={learning_rate}"
+    )
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
 
@@ -40,7 +43,7 @@ def train(
     logger.info(f"Loading dataset: {dataset_name}")
     dataset = load_dataset(dataset_name, split="train")
     logger.info(f"Dataset loaded: {len(dataset)} samples")
-    
+
     logger.info("Loading GPT-2 tokenizer")
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
@@ -48,6 +51,7 @@ def train(
 
     # Tokenize dataset
     logger.info("Tokenizing dataset")
+
     def tokenize_function(examples):
         return tokenizer(
             examples["text"],
@@ -68,8 +72,10 @@ def train(
     # Initialize model
     logger.info("Initializing model")
     model = TinyGPT2(vocab_size=tokenizer.vocab_size).to(device)
-    logger.info(f"Model initialized: {sum(p.numel() for p in model.parameters())} parameters")
-    
+    logger.info(
+        f"Model initialized: {sum(p.numel() for p in model.parameters())} parameters"
+    )
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -82,13 +88,12 @@ def train(
 
         for batch in progress_bar:
             input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
+            # attention_mask is loaded but not used in this simple training
+            _ = batch["attention_mask"].to(device)
 
             optimizer.zero_grad()
             outputs = model(input_ids)
-            loss = criterion(
-                outputs.view(-1, model.vocab_size), input_ids.view(-1)
-            )
+            loss = criterion(outputs.view(-1, model.vocab_size), input_ids.view(-1))
             loss.backward()
             optimizer.step()
 
@@ -97,16 +102,12 @@ def train(
 
         epoch_loss = total_loss / len(data_loader)
         logger.info(f"Epoch {epoch + 1} completed - Average loss: {epoch_loss:.4f}")
-        print(f"Epoch {epoch + 1} average loss: {epoch_loss}")
 
     logger.info("Training completed successfully")
-    
+
     # Save model weights
     model_weights_path = "trained_model_weights.pth"
     torch.save(model.state_dict(), model_weights_path)
     logger.info(f"Model weights saved to: {model_weights_path}")
-    
+
     return model
-
-
-

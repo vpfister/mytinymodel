@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mytinymodel = "mytinymodel:main"
+tiny = "mytinymodel.cli:main"
 
 [build-system]
 requires = ["uv_build"]

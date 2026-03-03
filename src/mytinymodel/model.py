@@ -42,7 +42,7 @@ class TinyGPT2(nn.Module):
 
     def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
         """Forward pass."""
-        batch_size, seq_len = input_ids.shape
+        _, seq_len = input_ids.shape
         token_embeddings = self.token_embeddings(input_ids)
         position_ids = torch.arange(seq_len, device=input_ids.device).unsqueeze(0)
         position_embeddings = self.position_embeddings(position_ids)

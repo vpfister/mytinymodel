@@ -16,6 +16,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Set specific packages to WARNING level only
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("datasets").setLevel(logging.WARNING)
+
 
 def evaluate(
     model: TinyGPT2,
@@ -86,20 +91,4 @@ def evaluate(
     return perplexity
 
 
-if __name__ == "__main__":
-    # Example usage when run as a script
-    from .model import TinyGPT2
-    import os
-    
-    # Try to load trained model weights if they exist
-    model_weights_path = "trained_model_weights.pth"
-    if os.path.exists(model_weights_path):
-        print(f"Loading trained model weights from: {model_weights_path}")
-        dummy_model = TinyGPT2(vocab_size=50257)
-        dummy_model.load_state_dict(torch.load(model_weights_path))
-    else:
-        print("No trained model weights found, using dummy model")
-        dummy_model = TinyGPT2(vocab_size=50257)
-    
-    print("Running evaluation...")
-    evaluate(dummy_model)
+

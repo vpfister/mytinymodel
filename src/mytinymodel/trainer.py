@@ -16,6 +16,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Set specific packages to WARNING level only
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("datasets").setLevel(logging.WARNING)
+
 
 def train(
     dataset_name: str = "imdb",
@@ -104,7 +109,4 @@ def train(
     return model
 
 
-if __name__ == "__main__":
-    # Run training when executed as a script
-    trained_model = train()
-    print("Training completed!")
+

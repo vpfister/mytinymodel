@@ -4,8 +4,8 @@ import argparse
 import logging
 
 from .evaluator import evaluate
-from .model import TinyGPT2
 from .trainer import train
+from .utils import load_trained_model_if_exists
 
 logger = logging.getLogger(__name__)
 
@@ -83,20 +83,12 @@ def main():
         )
     elif args.command == "eval":
         logger.info("Starting evaluation...")
-        # Try to load trained model weights if they exist
-        import os
-
-        import torch
-
-        model_weights_path = "trained_model_weights.pth"
-
-        if os.path.exists(model_weights_path):
-            logger.info(f"Loading trained model weights from: {model_weights_path}")
-            model = TinyGPT2(vocab_size=50257)
-            model.load_state_dict(torch.load(model_weights_path))
+        # Load trained model weights if they exist, otherwise create new model
+        model, loaded_from_file = load_trained_model_if_exists(vocab_size=50257)
+        if loaded_from_file:
+            logger.info("Using trained model weights")
         else:
-            logger.info("No trained model weights found, using dummy model")
-            model = TinyGPT2(vocab_size=50257)
+            logger.info("Using new model (no trained weights found)")
 
         evaluate(
             model,

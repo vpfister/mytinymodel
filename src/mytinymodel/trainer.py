@@ -3,23 +3,13 @@
 import logging
 
 import torch
-from datasets import load_dataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from transformers import GPT2Tokenizer
 
 from .model import TinyGPT2
+from .utils import get_device, load_and_tokenize_dataset
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
-
-# Set specific packages to WARNING level only
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("datasets").setLevel(logging.WARNING)
 
 
 def train(
@@ -36,34 +26,15 @@ def train(
         f"epochs={num_epochs}, lr={learning_rate}"
     )
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     logger.info(f"Using device: {device}")
 
-    # Load dataset and tokenizer
-    logger.info(f"Loading dataset: {dataset_name}")
-    dataset = load_dataset(dataset_name, split="train")
-    logger.info(f"Dataset loaded: {len(dataset)} samples")
-
-    logger.info("Loading GPT-2 tokenizer")
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    tokenizer.pad_token = tokenizer.eos_token
-    logger.info(f"Tokenizer loaded: vocab_size={tokenizer.vocab_size}")
-
-    # Tokenize dataset
-    logger.info("Tokenizing dataset")
-
-    def tokenize_function(examples):
-        return tokenizer(
-            examples["text"],
-            truncation=True,
-            max_length=max_seq_length,
-            padding="max_length",
-            return_tensors="pt",
-        )
-
-    tokenized_dataset = dataset.map(tokenize_function, batched=True)
-    tokenized_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-    logger.info("Dataset tokenization completed")
+    # Load and tokenize dataset
+    tokenized_dataset, tokenizer = load_and_tokenize_dataset(
+        dataset_name=dataset_name,
+        max_seq_length=max_seq_length,
+        split="train",
+    )
 
     # Create data loader
     data_loader = DataLoader(tokenized_dataset, batch_size=batch_size, shuffle=True)

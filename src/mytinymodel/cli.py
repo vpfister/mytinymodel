@@ -48,6 +48,18 @@ def main():
         default=128,
         help="Maximum sequence length (default: 128)",
     )
+    train_parser.add_argument(
+        "--validate-every",
+        type=int,
+        default=1000,
+        help="Number of samples between validation runs (default: 1000)",
+    )
+    train_parser.add_argument(
+        "--wandb",
+        type=lambda v: v.lower() not in ("false", "0", "no"),
+        default=True,
+        help="Enable wandb logging (default: true, pass 'false' to disable)",
+    )
 
     # Eval subcommand
     eval_parser = subparsers.add_parser("eval", help="Evaluate the model")
@@ -80,6 +92,8 @@ def main():
             num_epochs=args.epochs,
             learning_rate=args.learning_rate,
             max_seq_length=args.max_seq_length,
+            validate_every_n_samples=args.validate_every,
+            use_wandb=args.wandb,
         )
     elif args.command == "eval":
         logger.info("Starting evaluation...")

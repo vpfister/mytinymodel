@@ -4,8 +4,6 @@ import logging
 import os
 
 import torch
-from datasets import load_dataset
-from transformers import GPT2Tokenizer
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +34,9 @@ def load_and_tokenize_dataset(
         tuple: (tokenized_dataset, tokenizer)
 
     """
+    from datasets import load_dataset
+    from transformers import GPT2Tokenizer
+
     logger = logging.getLogger(__name__)
     logger.info(f"Loading dataset: {dataset_name}")
     dataset = load_dataset(dataset_name, split=split)
@@ -76,6 +77,9 @@ def load_and_tokenize_train_val_dataset(
         tuple: (train_dataset, val_dataset, tokenizer)
 
     """
+    from datasets import load_dataset
+    from transformers import GPT2Tokenizer
+
     logger = logging.getLogger(__name__)
     logger.info(f"Loading dataset: {dataset_name}")
     dataset = load_dataset(dataset_name, split="train")

@@ -116,7 +116,7 @@ def train(
             total_loss += loss.item()
             global_step += 1
             samples_since_last_val += input_ids.size(0)
-            progress_bar.set_postfix({"loss": loss.item()})
+            postfix = {"loss": f"{loss.item():.4f}"}
 
             if use_wandb:
                 wandb.log({"train/loss": loss.item()}, step=global_step)
@@ -126,16 +126,16 @@ def train(
                 val_loss, val_perplexity = _run_validation(
                     model, val_loader, criterion, device
                 )
-                logger.info(
-                    f"Validation - loss: {val_loss:.4f}, "
-                    f"perplexity: {val_perplexity:.2f}"
-                )
+                postfix["val_loss"] = f"{val_loss:.4f}"
+                postfix["val_ppl"] = f"{val_perplexity:.2f}"
                 if use_wandb:
                     wandb.log(
                         {"val/loss": val_loss, "val/perplexity": val_perplexity},
                         step=global_step,
                     )
                 samples_since_last_val = 0
+
+            progress_bar.set_postfix(postfix)
 
         epoch_loss = total_loss / len(train_loader)
         logger.info(f"Epoch {epoch + 1} completed - Average loss: {epoch_loss:.4f}")

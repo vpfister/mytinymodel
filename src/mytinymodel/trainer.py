@@ -100,6 +100,9 @@ def train(
     global_step = 0
     samples_since_last_val = 0
 
+    last_val_loss = None
+    last_val_ppl = None
+
     for epoch in range(num_epochs):
         total_loss = 0
         progress_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}")
@@ -116,25 +119,29 @@ def train(
             total_loss += loss.item()
             global_step += 1
             samples_since_last_val += input_ids.size(0)
-            postfix = {"loss": f"{loss.item():.4f}"}
 
             if use_wandb:
                 wandb.log({"train/loss": loss.item()}, step=global_step)
 
             # Periodic validation
             if samples_since_last_val >= validate_every_n_samples:
-                val_loss, val_perplexity = _run_validation(
+                last_val_loss, last_val_ppl = _run_validation(
                     model, val_loader, criterion, device
                 )
-                postfix["val_loss"] = f"{val_loss:.4f}"
-                postfix["val_ppl"] = f"{val_perplexity:.2f}"
                 if use_wandb:
                     wandb.log(
-                        {"val/loss": val_loss, "val/perplexity": val_perplexity},
+                        {
+                            "val/loss": last_val_loss,
+                            "val/perplexity": last_val_ppl,
+                        },
                         step=global_step,
                     )
                 samples_since_last_val = 0
 
+            postfix = {"loss": f"{loss.item():.4f}"}
+            if last_val_loss is not None:
+                postfix["val_loss"] = f"{last_val_loss:.4f}"
+                postfix["val_ppl"] = f"{last_val_ppl:.2f}"
             progress_bar.set_postfix(postfix)
 
         epoch_loss = total_loss / len(train_loader)

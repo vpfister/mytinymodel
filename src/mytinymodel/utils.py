@@ -17,6 +17,7 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("datasets").setLevel(logging.WARNING)
+logging.getLogger("wandb").setLevel(logging.WARNING)
 
 
 def get_device() -> torch.device:
@@ -62,6 +63,59 @@ def load_and_tokenize_dataset(
     logger.info("Dataset tokenization completed")
 
     return tokenized_dataset, tokenizer
+
+
+def load_and_tokenize_train_val_dataset(
+    dataset_name: str = "imdb",
+    max_seq_length: int = 128,
+    val_fraction: float = 0.1,
+) -> tuple:
+    """Load and tokenize a dataset, splitting into train and validation sets.
+
+    Returns:
+        tuple: (train_dataset, val_dataset, tokenizer)
+
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading dataset: {dataset_name}")
+    dataset = load_dataset(dataset_name, split="train")
+    logger.info(f"Dataset loaded: {len(dataset)} samples")
+
+    # Split into train and validation
+    split = dataset.train_test_split(test_size=val_fraction)
+    train_dataset = split["train"]
+    val_dataset = split["test"]
+    logger.info(
+        f"Split into {len(train_dataset)} train / {len(val_dataset)} val samples"
+    )
+
+    logger.info("Loading GPT-2 tokenizer")
+    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    tokenizer.pad_token = tokenizer.eos_token
+    logger.info(f"Tokenizer loaded: vocab_size={tokenizer.vocab_size}")
+
+    # Tokenize datasets
+    logger.info("Tokenizing datasets")
+
+    def tokenize_function(examples):
+        return tokenizer(
+            examples["text"],
+            truncation=True,
+            max_length=max_seq_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+
+    for ds_name, ds in [("train", train_dataset), ("val", val_dataset)]:
+        tokenized = ds.map(tokenize_function, batched=True)
+        tokenized.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        if ds_name == "train":
+            train_dataset = tokenized
+        else:
+            val_dataset = tokenized
+
+    logger.info("Dataset tokenization completed")
+    return train_dataset, val_dataset, tokenizer
 
 
 def load_trained_model_if_exists(vocab_size: int = 50257) -> tuple:
